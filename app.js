@@ -52,6 +52,55 @@
     });
   }
 
+  // --- Background Audio ---
+  function initAudio() {
+    const toggle = document.getElementById('sound-toggle');
+    if (!toggle) return;
+
+    const audio = new Audio('745373__audiocoffee__ambient-future-tech-loop-ver.wav');
+    audio.loop = true;
+    audio.volume = 0.3;
+
+    let playing = false;
+    const wasMuted = localStorage.getItem('seismic_muted') === 'true';
+
+    function play() {
+      audio.play().then(() => {
+        playing = true;
+        toggle.textContent = '🔊';
+        toggle.classList.add('playing');
+        localStorage.setItem('seismic_muted', 'false');
+      }).catch(() => {});
+    }
+
+    function pause() {
+      audio.pause();
+      playing = false;
+      toggle.textContent = '🔇';
+      toggle.classList.remove('playing');
+      localStorage.setItem('seismic_muted', 'true');
+    }
+
+    toggle.addEventListener('click', () => {
+      if (playing) {
+        pause();
+      } else {
+        play();
+      }
+    });
+
+    // Auto-play on first user interaction if not previously muted
+    if (!wasMuted) {
+      function autoPlay() {
+        play();
+        document.removeEventListener('click', autoPlay);
+        document.removeEventListener('touchstart', autoPlay);
+      }
+      document.addEventListener('click', autoPlay, { once: false });
+      document.addEventListener('touchstart', autoPlay, { once: false });
+    }
+  }
+
   // --- Inject Particles into body ---
   function injectParticles() {
     const container = document.createElement('div');
@@ -419,6 +468,7 @@
   // --- Initialize ---
   document.addEventListener('DOMContentLoaded', () => {
     injectParticles();
+    initAudio();
     initRegisterPage();
     initDirectoryPage();
   });
