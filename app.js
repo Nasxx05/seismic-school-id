@@ -89,16 +89,14 @@
       }
     });
 
-    // Auto-play on first user interaction if not previously muted
-    if (!wasMuted) {
-      function autoPlay() {
-        play();
-        document.removeEventListener('click', autoPlay);
-        document.removeEventListener('touchstart', autoPlay);
-      }
-      document.addEventListener('click', autoPlay, { once: false });
-      document.addEventListener('touchstart', autoPlay, { once: false });
+    // Sound on by default — auto-play on first user interaction
+    function autoPlay() {
+      play();
+      document.removeEventListener('click', autoPlay);
+      document.removeEventListener('touchstart', autoPlay);
     }
+    document.addEventListener('click', autoPlay, { once: false });
+    document.addEventListener('touchstart', autoPlay, { once: false });
   }
 
   // --- Inject Particles into body ---
