@@ -52,58 +52,52 @@
     });
   }
 
-  // --- Background Audio (autoplay + toggle) ---
+  // --- Background Audio ---
   function initAudio() {
     const toggle = document.getElementById('sound-toggle');
     if (!toggle) return;
 
-    const audio = document.createElement('audio');
-    audio.src = '745373__audiocoffee__ambient-future-tech-loop-ver.wav';
+    const audio = new Audio('745373__audiocoffee__ambient-future-tech-loop-ver.wav');
     audio.loop = true;
     audio.volume = 0.3;
-    audio.preload = 'auto';
-    audio.autoplay = true;
-    document.body.appendChild(audio);
 
     let playing = false;
+    const wasMuted = localStorage.getItem('seismic_muted') === 'true';
 
-    function setPlaying() {
-      playing = true;
-      toggle.textContent = '🔊';
-      toggle.classList.add('playing');
+    function play() {
+      audio.play().then(() => {
+        playing = true;
+        toggle.textContent = '🔊';
+        toggle.classList.add('playing');
+        localStorage.setItem('seismic_muted', 'false');
+      }).catch(() => {});
     }
 
-    function setPaused() {
+    function pause() {
+      audio.pause();
       playing = false;
       toggle.textContent = '🔇';
       toggle.classList.remove('playing');
+      localStorage.setItem('seismic_muted', 'true');
     }
 
-    // Toggle mute/unmute
-    toggle.addEventListener('click', (e) => {
-      e.stopPropagation();
+    toggle.addEventListener('click', () => {
       if (playing) {
-        audio.pause();
-        setPaused();
+        pause();
       } else {
-        audio.play().then(setPlaying).catch(() => setPaused());
+        play();
       }
     });
 
-    // Try to autoplay immediately
-    const tryPlay = audio.play();
-    if (tryPlay !== undefined) {
-      tryPlay.then(setPlaying).catch(() => {
-        // Browser blocked autoplay — play on first user interaction
-        setPaused();
-        const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'scroll'];
-        function startAudio(e) {
-          if (e.target === toggle || toggle.contains(e.target)) return;
-          audio.play().then(setPlaying).catch(() => setPaused());
-          events.forEach(ev => document.removeEventListener(ev, startAudio, true));
-        }
-        events.forEach(ev => document.addEventListener(ev, startAudio, true));
-      });
+    // Auto-play on first user interaction if not previously muted
+    if (!wasMuted) {
+      function autoPlay() {
+        play();
+        document.removeEventListener('click', autoPlay);
+        document.removeEventListener('touchstart', autoPlay);
+      }
+      document.addEventListener('click', autoPlay, { once: false });
+      document.addEventListener('touchstart', autoPlay, { once: false });
     }
   }
 
