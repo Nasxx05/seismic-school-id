@@ -52,8 +52,11 @@
     });
   }
 
-  // --- Background Audio (autoplay) ---
+  // --- Background Audio (autoplay + toggle) ---
   function initAudio() {
+    const toggle = document.getElementById('sound-toggle');
+    if (!toggle) return;
+
     const audio = document.createElement('audio');
     audio.src = '745373__audiocoffee__ambient-future-tech-loop-ver.wav';
     audio.loop = true;
@@ -62,14 +65,41 @@
     audio.autoplay = true;
     document.body.appendChild(audio);
 
-    // Try to play immediately
+    let playing = false;
+
+    function setPlaying() {
+      playing = true;
+      toggle.textContent = '🔊';
+      toggle.classList.add('playing');
+    }
+
+    function setPaused() {
+      playing = false;
+      toggle.textContent = '🔇';
+      toggle.classList.remove('playing');
+    }
+
+    // Toggle mute/unmute
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (playing) {
+        audio.pause();
+        setPaused();
+      } else {
+        audio.play().then(setPlaying).catch(() => setPaused());
+      }
+    });
+
+    // Try to autoplay immediately
     const tryPlay = audio.play();
     if (tryPlay !== undefined) {
-      tryPlay.catch(() => {
-        // Browser blocked autoplay — play on any user interaction
+      tryPlay.then(setPlaying).catch(() => {
+        // Browser blocked autoplay — play on first user interaction
+        setPaused();
         const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'scroll'];
-        function startAudio() {
-          audio.play().catch(() => {});
+        function startAudio(e) {
+          if (e.target === toggle || toggle.contains(e.target)) return;
+          audio.play().then(setPlaying).catch(() => setPaused());
           events.forEach(ev => document.removeEventListener(ev, startAudio, true));
         }
         events.forEach(ev => document.addEventListener(ev, startAudio, true));
