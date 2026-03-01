@@ -235,8 +235,6 @@
 
       if (!photoData) {
         showError(photoCircle, 'Please upload a photo');
-      } else if (photoData.length > 500000) {
-        showError(photoCircle, 'Photo is too large. Try a smaller image.');
       }
 
       const name = nameInput.value.trim();

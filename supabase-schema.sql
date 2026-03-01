@@ -6,7 +6,7 @@ CREATE TABLE users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL CHECK (char_length(name) >= 1 AND char_length(name) <= 100),
   magnitude INTEGER NOT NULL CHECK (magnitude >= 1 AND magnitude <= 9),
-  photo TEXT NOT NULL CHECK (char_length(photo) <= 500000),
+  photo TEXT NOT NULL,
   signature TEXT NOT NULL CHECK (char_length(signature) <= 200000),
   registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
