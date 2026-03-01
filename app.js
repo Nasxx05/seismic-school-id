@@ -3,19 +3,53 @@
 (function () {
   'use strict';
 
-  const STORAGE_KEY = 'seismic_users';
+  // --- Supabase Client ---
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  // --- Utilities ---
-  function getUsers() {
+  // --- Database Utilities ---
+  async function getUsers() {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch {
+      const { data, error } = await db
+        .from('users')
+        .select('*')
+        .order('magnitude', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error('Failed to fetch users:', err);
       return [];
     }
   }
 
-  function saveUsers(users) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+  async function addUser(user) {
+    const { data, error } = await db
+      .from('users')
+      .insert([user])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // --- Image Compression ---
+  function compressImage(dataUrl, maxSize, quality) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          const ratio = Math.min(maxSize / width, maxSize / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = dataUrl;
+    });
   }
 
   // --- Inject Particles into body ---
@@ -38,7 +72,6 @@
     if (!form) return;
 
     // --- Prevent multiple registrations ---
-    // If the user has already minted an ID on this device, redirect them to the directory
     if (localStorage.getItem('has_registered')) {
       window.location.href = 'directory.html';
       return;
@@ -71,8 +104,8 @@
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        photoData = ev.target.result;
+      reader.onload = async (ev) => {
+        photoData = await compressImage(ev.target.result, 400, 0.7);
         // Update form preview
         photoPreviewImg.src = photoData;
         photoCircle.classList.add('has-photo');
@@ -182,7 +215,7 @@
     });
 
     // --- Form Submission ---
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       // Clear previous errors
@@ -228,39 +261,53 @@
 
       if (hasError) return;
 
-      // Save user
-      const users = getUsers();
-      const newUserId = Date.now();
-      users.push({
-        id: newUserId,
-        name,
-        magnitude: mag,
-        photo: photoData,
-        signature: sigData,
-        registeredAt: new Date().toISOString()
-      });
-      saveUsers(users);
+      // Disable submit button while saving
+      const submitBtn = form.querySelector('.btn-mint');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Minting...';
 
-      // Set flags
-      sessionStorage.setItem('just_minted', newUserId.toString());
-      localStorage.setItem('has_registered', 'true');
+      try {
+        const newUser = await addUser({
+          name,
+          magnitude: mag,
+          photo: photoData,
+          signature: sigData
+        });
 
-      // Redirect
-      window.location.href = 'directory.html';
+        // Set flags
+        sessionStorage.setItem('just_minted', newUser.id.toString());
+        localStorage.setItem('has_registered', 'true');
+
+        // Redirect
+        window.location.href = 'directory.html';
+      } catch (err) {
+        console.error('Registration failed:', err);
+        submitBtn.disabled = false;
+        submitBtn.textContent = '⚡ Mint My ID';
+        alert('Registration failed. Please try again.');
+      }
     });
   }
 
   // =============================================
   //  DIRECTORY PAGE
   // =============================================
-  function initDirectoryPage() {
+  async function initDirectoryPage() {
     const listEl = document.getElementById('directory-list');
     if (!listEl) return;
 
-    const users = getUsers();
     const scrollWrapper = document.getElementById('scroll-wrapper');
     const scrollPrompt = document.getElementById('scroll-prompt');
     const justMintedId = sessionStorage.getItem('just_minted');
+
+    // Show loading state
+    listEl.innerHTML = `
+      <div class="empty-state">
+        <p>Loading seismic records...</p>
+      </div>
+    `;
+
+    const users = await getUsers();
 
     if (users.length === 0) {
       listEl.innerHTML = `
@@ -273,10 +320,11 @@
       return;
     }
 
-    // Sort by magnitude descending; stable sort preserves insertion order for ties
-    const sorted = [...users].sort((a, b) => b.magnitude - a.magnitude);
+    // Clear loading state and render entries
+    listEl.innerHTML = '';
 
-    sorted.forEach((user, index) => {
+    // Already sorted by magnitude desc from the query
+    users.forEach((user, index) => {
       const rank = index + 1;
       const row = document.createElement('div');
       row.className = 'directory-row';
@@ -284,7 +332,7 @@
       row.innerHTML = `
         <div class="row-rank">${getRankLabel(rank)}</div>
         <div class="row-photo">
-          <img src="${user.photo}" alt="${user.name}">
+          <img src="${user.photo}" alt="${escapeHtml(user.name)}">
         </div>
         <div class="row-name">${escapeHtml(user.name)}</div>
         <div class="row-sig">
