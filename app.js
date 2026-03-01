@@ -60,43 +60,46 @@
     const audio = new Audio('745373__audiocoffee__ambient-future-tech-loop-ver.wav');
     audio.loop = true;
     audio.volume = 0.3;
+    audio.preload = 'auto';
 
     let playing = false;
-    const wasMuted = localStorage.getItem('seismic_muted') === 'true';
+    let started = false;
 
-    function play() {
-      audio.play().then(() => {
-        playing = true;
-        toggle.textContent = '🔊';
-        toggle.classList.add('playing');
-        localStorage.setItem('seismic_muted', 'false');
-      }).catch(() => {});
+    function setPlaying() {
+      playing = true;
+      toggle.textContent = '🔊';
+      toggle.classList.add('playing');
     }
 
-    function pause() {
-      audio.pause();
+    function setPaused() {
       playing = false;
       toggle.textContent = '🔇';
       toggle.classList.remove('playing');
-      localStorage.setItem('seismic_muted', 'true');
     }
 
-    toggle.addEventListener('click', () => {
+    // Toggle button — mute/unmute
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      started = true;
       if (playing) {
-        pause();
+        audio.pause();
+        setPaused();
       } else {
-        play();
+        audio.play().then(setPlaying).catch(() => setPaused());
       }
     });
 
-    // Sound on by default — auto-play on first user interaction
-    function autoPlay() {
-      play();
-      document.removeEventListener('click', autoPlay);
-      document.removeEventListener('touchstart', autoPlay);
+    // Sound on by default — auto-play on first interaction anywhere
+    function autoPlay(e) {
+      if (started) return;
+      if (e.target === toggle || toggle.contains(e.target)) return;
+      started = true;
+      document.removeEventListener('click', autoPlay, true);
+      document.removeEventListener('touchstart', autoPlay, true);
+      audio.play().then(setPlaying).catch(() => setPaused());
     }
-    document.addEventListener('click', autoPlay, { once: false });
-    document.addEventListener('touchstart', autoPlay, { once: false });
+    document.addEventListener('click', autoPlay, true);
+    document.addEventListener('touchstart', autoPlay, true);
   }
 
   // --- Inject Particles into body ---
