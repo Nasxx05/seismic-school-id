@@ -54,22 +54,27 @@
 
   // --- Background Audio (autoplay) ---
   function initAudio() {
-    const audio = new Audio('745373__audiocoffee__ambient-future-tech-loop-ver.wav');
+    const audio = document.createElement('audio');
+    audio.src = '745373__audiocoffee__ambient-future-tech-loop-ver.wav';
     audio.loop = true;
     audio.volume = 0.3;
     audio.preload = 'auto';
+    audio.autoplay = true;
+    document.body.appendChild(audio);
 
     // Try to play immediately
-    audio.play().catch(() => {
-      // Browser blocked autoplay — play on first user interaction
-      function startAudio() {
-        audio.play().catch(() => {});
-        document.removeEventListener('click', startAudio, true);
-        document.removeEventListener('touchstart', startAudio, true);
-      }
-      document.addEventListener('click', startAudio, true);
-      document.addEventListener('touchstart', startAudio, true);
-    });
+    const tryPlay = audio.play();
+    if (tryPlay !== undefined) {
+      tryPlay.catch(() => {
+        // Browser blocked autoplay — play on any user interaction
+        const events = ['click', 'touchstart', 'keydown', 'pointerdown', 'scroll'];
+        function startAudio() {
+          audio.play().catch(() => {});
+          events.forEach(ev => document.removeEventListener(ev, startAudio, true));
+        }
+        events.forEach(ev => document.addEventListener(ev, startAudio, true));
+      });
+    }
   }
 
   // --- Inject Particles into body ---
