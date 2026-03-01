@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — Seismic School ID</title>
+    <meta name="description"
+        content="Register your Seismic School ID. Upload your photo, choose your Magnitude Level, and mint your identity.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-logo">Seismic</a>
+        <div class="nav-links">
+            <a href="register.html" class="active">Register</a>
+            <a href="directory.html">Directory</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="register-container">
+
+            <!-- Left: Registration Form -->
+            <section class="form-section">
+                <h2>Mint Your ID</h2>
+                <p class="form-subtitle">Fill in your details to join the seismic network.</p>
+
+                <form id="register-form" autocomplete="off">
+
+                    <!-- Photo Upload -->
+                    <div class="form-group">
+                        <label>Profile Photo</label>
+                        <div class="photo-upload-area">
+                            <div class="photo-preview-circle" id="photo-circle">
+                                <span class="upload-icon">📷</span>
+                                <img id="photo-preview-img" alt="Preview">
+                            </div>
+                            <input type="file" id="photo-input" accept="image/*">
+                            <span class="photo-upload-label" id="photo-label">Click to upload</span>
+                        </div>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="name-input">Full Name</label>
+                        <input type="text" id="name-input" placeholder="Enter your full name" maxlength="60">
+                    </div>
+
+                    <!-- Magnitude Level -->
+                    <div class="form-group">
+                        <label for="mag-select">Magnitude Level</label>
+                        <select id="mag-select">
+                            <option value="">— Select Magnitude —</option>
+                            <option value="1">Mag 1</option>
+                            <option value="2">Mag 2</option>
+                            <option value="3">Mag 3</option>
+                            <option value="4">Mag 4</option>
+                            <option value="5">Mag 5</option>
+                            <option value="6">Mag 6</option>
+                            <option value="7">Mag 7</option>
+                            <option value="8">Mag 8</option>
+                            <option value="9">Mag 9</option>
+                        </select>
+                    </div>
+
+                    <!-- Signature Pad -->
+                    <div class="form-group">
+                        <label>Digital Signature</label>
+                        <div class="signature-canvas-wrap">
+                            <canvas id="sig-canvas" class="signature-canvas"></canvas>
+                            <button type="button" id="clear-sig-btn" class="clear-sig-btn">Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-mint">⚡ Mint My ID</button>
+                </form>
+            </section>
+
+            <!-- Right: Live ID Card Preview -->
+            <aside class="id-card-section">
+                <h3>Live Preview</h3>
+                <div class="id-card">
+                    <div class="id-card-header">
+                        <span class="id-card-logo">Seismic ID</span>
+                        <span class="id-card-badge" id="card-badge">Select Level</span>
+                    </div>
+                    <div class="id-card-body">
+                        <div class="id-card-photo" id="card-photo">
+                            <span class="placeholder-icon">👤</span>
+                            <img id="card-photo-img" alt="ID Photo">
+                        </div>
+                        <div class="id-card-name empty" id="card-name">Your Name</div>
+                        <div class="id-card-mag" id="card-mag">MAG —</div>
+                        <div class="id-card-sig" id="card-sig-wrap">
+                            <img id="card-sig-img" alt="Signature">
+                            <span class="sig-placeholder">Signature will appear here</span>
+                        </div>
+                    </div>
+                    <div class="id-card-footer">Seismic Systems · Verified Identity</div>
+                </div>
+            </aside>
+
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

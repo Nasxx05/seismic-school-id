@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Wall — Seismic School ID</title>
+    <meta name="description"
+        content="The Seismic Wall — a ranked directory of all registered members, sorted by Magnitude Level.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-logo">Seismic</a>
+        <div class="nav-links">
+            <a href="register.html">Register</a>
+            <a href="directory.html" class="active">Directory</a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="directory-container">
+
+            <header class="directory-header">
+                <h1>The Wall</h1>
+                <p class="directory-description">
+                    The Magnitudes Were Here, This is our shared memory.<br>
+                    So if you’re here, Leave your mark.<br>
+                    MAGNITUDES STEP FORWARD.<br><br>
+                    Let it be known — You were here.
+                </p>
+            </header>
+
+            <!-- Scroll Prompt Overlay (shown when redirected from registration) -->
+            <div class="scroll-prompt-overlay hidden" id="scroll-prompt">
+                <div class="scroll-prompt-box">
+                    <img src="prompt-icon.png" class="prompt-icon" alt="Seismic prompt">
+                    <div class="prompt-text">Your inscription awaits...</div>
+                    <div class="prompt-sub">Click the scroll to reveal The Wall</div>
+                </div>
+            </div>
+
+            <!-- Ancient Scroll with Rollers and Corner Ornaments -->
+            <div class="scroll-wrapper" id="scroll-wrapper">
+                <!-- Top Roller -->
+                <div class="scroll-roller scroll-roller-top"></div>
+
+                <!-- Scroll Unroll Container -->
+                <div class="scroll-container">
+                    <!-- Parchment Body -->
+                    <div class="scroll-parchment">
+                        <!-- Corner Ornaments -->
+                        <div class="scroll-corner scroll-corner-tl">✦</div>
+                        <div class="scroll-corner scroll-corner-tr">✦</div>
+                        <div class="scroll-corner scroll-corner-bl">✦</div>
+                        <div class="scroll-corner scroll-corner-br">✦</div>
+
+                        <!-- Parchment Content -->
+                        <div class="directory-list" id="directory-list">
+                            <!-- Populated by app.js -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Roller -->
+                <div class="scroll-roller scroll-roller-bottom"></div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="seed-data.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
