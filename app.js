@@ -52,54 +52,24 @@
     });
   }
 
-  // --- Background Audio ---
+  // --- Background Audio (autoplay) ---
   function initAudio() {
-    const toggle = document.getElementById('sound-toggle');
-    if (!toggle) return;
-
     const audio = new Audio('745373__audiocoffee__ambient-future-tech-loop-ver.wav');
     audio.loop = true;
     audio.volume = 0.3;
     audio.preload = 'auto';
 
-    let playing = false;
-    let started = false;
-
-    function setPlaying() {
-      playing = true;
-      toggle.textContent = '🔊';
-      toggle.classList.add('playing');
-    }
-
-    function setPaused() {
-      playing = false;
-      toggle.textContent = '🔇';
-      toggle.classList.remove('playing');
-    }
-
-    // Toggle button — mute/unmute
-    toggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      started = true;
-      if (playing) {
-        audio.pause();
-        setPaused();
-      } else {
-        audio.play().then(setPlaying).catch(() => setPaused());
+    // Try to play immediately
+    audio.play().catch(() => {
+      // Browser blocked autoplay — play on first user interaction
+      function startAudio() {
+        audio.play().catch(() => {});
+        document.removeEventListener('click', startAudio, true);
+        document.removeEventListener('touchstart', startAudio, true);
       }
+      document.addEventListener('click', startAudio, true);
+      document.addEventListener('touchstart', startAudio, true);
     });
-
-    // Sound on by default — auto-play on first interaction anywhere
-    function autoPlay(e) {
-      if (started) return;
-      if (e.target === toggle || toggle.contains(e.target)) return;
-      started = true;
-      document.removeEventListener('click', autoPlay, true);
-      document.removeEventListener('touchstart', autoPlay, true);
-      audio.play().then(setPlaying).catch(() => setPaused());
-    }
-    document.addEventListener('click', autoPlay, true);
-    document.addEventListener('touchstart', autoPlay, true);
   }
 
   // --- Inject Particles into body ---
