@@ -235,11 +235,15 @@
 
       if (!photoData) {
         showError(photoCircle, 'Please upload a photo');
+      } else if (photoData.length > 500000) {
+        showError(photoCircle, 'Photo is too large. Try a smaller image.');
       }
 
       const name = nameInput.value.trim();
       if (!name) {
         showError(nameInput, 'Please enter your name');
+      } else if (name.length > 100) {
+        showError(nameInput, 'Name must be 100 characters or less');
       }
 
       const mag = parseInt(magSelect.value);
@@ -257,6 +261,9 @@
       if (isBlank) {
         const wrap = document.querySelector('.signature-canvas-wrap');
         showError(wrap, 'Please draw your signature');
+      } else if (sigData.length > 200000) {
+        const wrap = document.querySelector('.signature-canvas-wrap');
+        showError(wrap, 'Signature is too complex. Please clear and try a simpler one.');
       }
 
       if (hasError) return;
