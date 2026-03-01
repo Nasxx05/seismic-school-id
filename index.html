@@ -126,7 +126,7 @@
 <canvas id="cv"></canvas>
 
 <div class="corner">SEISMIC · PRIVACY · 2025</div>
-<button class="skip-btn" id="skipBtn">SKIP ↗</button>
+<button class="skip-btn" id="skipBtn" onclick="window.location.href='register.html'">SKIP ↗</button>
 <div class="scan"><div class="scan-in"></div></div>
 
 <div class="prog">
@@ -241,7 +241,6 @@
 
   function updateNav(){
     document.getElementById('prevBtn').disabled = (cur_s === 0);
-    document.getElementById('nextBtn').disabled = (cur_s === scenes.length - 1);
   }
 
   function show(n){
@@ -249,6 +248,8 @@
     dots[cur_s].classList.remove('on');
     flash();
     cur_s=n;
+    // force reflow so CSS animations replay when revisiting a scene
+    void scenes[cur_s].offsetWidth;
     scenes[cur_s].classList.add('on');
     dots[cur_s].classList.add('on');
     updateNav();
