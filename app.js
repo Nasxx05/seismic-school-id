@@ -148,13 +148,16 @@
     function resizeCanvas() {
       const rect = sigCanvas.parentElement.getBoundingClientRect();
       const ratio = window.devicePixelRatio || 1;
+      // Match CSS responsive heights
+      const vw = window.innerWidth;
+      const canvasHeight = vw <= 360 ? 140 : vw <= 480 ? 160 : vw <= 768 ? 200 : 260;
       sigCanvas.width = rect.width * ratio;
-      sigCanvas.height = 260 * ratio;
+      sigCanvas.height = canvasHeight * ratio;
       sigCanvas.style.width = rect.width + 'px';
-      sigCanvas.style.height = '260px';
+      sigCanvas.style.height = canvasHeight + 'px';
       ctx.scale(ratio, ratio);
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 5;
+      ctx.lineWidth = vw <= 480 ? 3 : 5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
     }
@@ -240,6 +243,8 @@
       const name = nameInput.value.trim();
       if (!name) {
         showError(nameInput, 'Please enter your name');
+      } else if (name.length > 100) {
+        showError(nameInput, 'Name must be 100 characters or less');
       }
 
       const mag = parseInt(magSelect.value);
@@ -257,6 +262,9 @@
       if (isBlank) {
         const wrap = document.querySelector('.signature-canvas-wrap');
         showError(wrap, 'Please draw your signature');
+      } else if (sigData.length > 200000) {
+        const wrap = document.querySelector('.signature-canvas-wrap');
+        showError(wrap, 'Signature is too complex. Please clear and try a simpler one.');
       }
 
       if (hasError) return;

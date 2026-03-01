@@ -4,10 +4,10 @@
 -- 1. Create the users table
 CREATE TABLE users (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
+  name TEXT NOT NULL CHECK (char_length(name) >= 1 AND char_length(name) <= 100),
   magnitude INTEGER NOT NULL CHECK (magnitude >= 1 AND magnitude <= 9),
   photo TEXT NOT NULL,
-  signature TEXT NOT NULL,
+  signature TEXT NOT NULL CHECK (char_length(signature) <= 200000),
   registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -18,6 +18,11 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read" ON users
   FOR SELECT USING (true);
 
--- 4. Allow anyone to insert new users (registration is open)
+-- 4. Allow anyone to insert new users (rate-limited to 1 per 30 seconds per global)
 CREATE POLICY "Allow public insert" ON users
-  FOR INSERT WITH CHECK (true);
+  FOR INSERT WITH CHECK (
+    NOT EXISTS (
+      SELECT 1 FROM users
+      WHERE registered_at > NOW() - INTERVAL '30 seconds'
+    )
+  );
