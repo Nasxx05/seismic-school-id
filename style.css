@@ -1313,63 +1313,57 @@ body::after {
     padding: 24px 16px;
   }
 
-  /* Directory rows: two-line card layout */
-  .directory-row {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto auto;
-    grid-template-rows: auto auto;
-    gap: 6px 10px;
-    padding: 14px 16px;
-    margin: 0 6px;
-    align-items: center;
+  /* Hide rank on mobile */
+  .row-rank {
+    display: none;
   }
 
-  .row-rank {
-    grid-row: 1 / 3;
-    min-width: 36px;
-    font-size: 0.95rem;
+  .directory-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    margin: 0 6px;
+    flex-wrap: nowrap;
   }
 
   .row-photo {
-    grid-row: 1 / 3;
     width: 42px;
     height: 42px;
+    flex-shrink: 0;
   }
 
   .row-name {
-    grid-column: 3;
-    grid-row: 1;
-    font-size: 0.9rem;
-    max-width: 100%;
+    font-size: 0.85rem;
+    max-width: none;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
   }
 
   .row-sig {
-    grid-column: 3;
-    grid-row: 2;
-    justify-content: flex-start;
+    flex: 0 0 auto;
     min-width: 0;
   }
 
   .row-sig img {
-    max-height: 22px;
-    max-width: 80px;
+    max-height: 30px;
+    max-width: 90px;
+    filter: invert(1) contrast(2);
   }
 
   .row-was-here {
-    grid-column: 4;
-    grid-row: 1 / 3;
-    font-size: 1rem;
-    margin-left: 0;
+    font-size: 0.9rem;
+    margin-left: auto;
+    flex-shrink: 0;
   }
 
   .row-mag-badge {
-    grid-column: 5;
-    grid-row: 1 / 3;
     font-size: 0.55rem;
     padding: 2px 8px;
+    flex-shrink: 0;
   }
 }
 
@@ -1500,69 +1494,33 @@ body::after {
     padding: 20px 8px;
   }
 
-  /* Directory rows: compact card layout */
   .directory-row {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto;
-    grid-template-rows: auto auto;
-    gap: 4px 8px;
+    gap: 8px;
     padding: 12px 10px;
     margin: 0 2px;
-    align-items: center;
-  }
-
-  .row-rank {
-    grid-row: 1 / 3;
-    min-width: 28px;
-    font-size: 0.8rem;
-  }
-
-  .directory-row:first-of-type .row-rank {
-    font-size: 0.95rem;
   }
 
   .row-photo {
-    grid-row: 1 / 3;
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
   }
 
   .row-name {
-    grid-column: 3;
-    grid-row: 1;
-    font-size: 0.8rem;
-    max-width: 100%;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .row-sig {
-    grid-column: 3;
-    grid-row: 2;
-    justify-content: flex-start;
-    min-width: 0;
+    font-size: 0.78rem;
   }
 
   .row-sig img {
-    max-height: 18px;
-    max-width: 60px;
+    max-height: 24px;
+    max-width: 70px;
   }
 
   .row-was-here {
-    grid-column: 4;
-    grid-row: 1;
     font-size: 0.75rem;
-    margin-left: 0;
   }
 
   .row-mag-badge {
-    grid-column: 4;
-    grid-row: 2;
     font-size: 0.5rem;
     padding: 2px 6px;
-    text-align: center;
   }
 
   .btn-mint {
@@ -1637,35 +1595,30 @@ body::after {
   }
 
   .directory-row {
-    padding: 10px 8px;
-    gap: 3px 6px;
-  }
-
-  .row-rank {
-    min-width: 24px;
-    font-size: 0.75rem;
+    padding: 10px 6px;
+    gap: 6px;
   }
 
   .row-photo {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
   }
 
   .row-name {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .row-sig img {
+    max-height: 20px;
+    max-width: 55px;
   }
 
   .row-was-here {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
   }
 
   .row-mag-badge {
     font-size: 0.45rem;
     padding: 1px 4px;
-  }
-
-  .row-sig img {
-    max-height: 14px;
-    max-width: 45px;
   }
 }
