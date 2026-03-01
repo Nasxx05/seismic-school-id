@@ -52,52 +52,30 @@
     });
   }
 
-  // --- Background Audio ---
+  // --- Background Audio (autoplay) ---
   function initAudio() {
-    const toggle = document.getElementById('sound-toggle');
-    if (!toggle) return;
-
     const audio = new Audio('745373__audiocoffee__ambient-future-tech-loop-ver.wav');
     audio.loop = true;
     audio.volume = 0.3;
 
-    let playing = false;
-    const wasMuted = localStorage.getItem('seismic_muted') === 'true';
+    let started = false;
 
-    function play() {
-      audio.play().then(() => {
-        playing = true;
-        toggle.textContent = '🔊';
-        toggle.classList.add('playing');
-        localStorage.setItem('seismic_muted', 'false');
-      }).catch(() => {});
+    function startAudio() {
+      if (started) return;
+      audio.play().then(() => { started = true; }).catch(() => {});
     }
 
-    function pause() {
-      audio.pause();
-      playing = false;
-      toggle.textContent = '🔇';
-      toggle.classList.remove('playing');
-      localStorage.setItem('seismic_muted', 'true');
-    }
+    // Try immediately
+    startAudio();
 
-    toggle.addEventListener('click', () => {
-      if (playing) {
-        pause();
-      } else {
-        play();
+    // Browsers block autoplay until user interacts — listen for first interaction
+    if (!started) {
+      const events = ['click', 'touchstart', 'keydown'];
+      function onInteraction() {
+        startAudio();
+        events.forEach(e => document.removeEventListener(e, onInteraction, true));
       }
-    });
-
-    // Auto-play on first user interaction if not previously muted
-    if (!wasMuted) {
-      function autoPlay() {
-        play();
-        document.removeEventListener('click', autoPlay);
-        document.removeEventListener('touchstart', autoPlay);
-      }
-      document.addEventListener('click', autoPlay, { once: false });
-      document.addEventListener('touchstart', autoPlay, { once: false });
+      events.forEach(e => document.addEventListener(e, onInteraction, true));
     }
   }
 
