@@ -182,7 +182,7 @@
       const val = magSelect.value;
       if (val === 'admin') {
         cardMag.textContent = 'ADMIN';
-        cardBadge.textContent = 'Administrator';
+        cardBadge.textContent = 'Admin';
       } else if (val) {
         cardMag.textContent = `MAG ${val}`;
         cardBadge.textContent = `Magnitude ${val}`;
