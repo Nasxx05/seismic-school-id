@@ -180,7 +180,10 @@
     // --- Magnitude Select → Live Preview ---
     magSelect.addEventListener('change', () => {
       const val = magSelect.value;
-      if (val) {
+      if (val === 'admin') {
+        cardMag.textContent = 'ADMIN';
+        cardBadge.textContent = 'Administrator';
+      } else if (val) {
         cardMag.textContent = `MAG ${val}`;
         cardBadge.textContent = `Magnitude ${val}`;
       } else {
@@ -296,7 +299,8 @@
         showError(nameInput, 'Name must be 100 characters or less');
       }
 
-      const mag = parseInt(magSelect.value);
+      const magVal = magSelect.value;
+      const mag = magVal === 'admin' ? 'admin' : parseInt(magVal);
       if (!mag) {
         showError(magSelect, 'Please select a magnitude level');
       }
@@ -395,7 +399,7 @@
           <img src="${user.signature}" alt="signature">
         </div>
         <span class="row-was-here">was here</span>
-        <span class="row-mag-badge">MAG ${user.magnitude}</span>
+        <span class="row-mag-badge">${user.magnitude === 'admin' ? 'ADMIN' : `MAG ${user.magnitude}`}</span>
       `;
       listEl.appendChild(row);
     });
