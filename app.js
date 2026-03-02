@@ -387,7 +387,6 @@
       row.className = 'directory-row';
       row.setAttribute('data-user-id', user.id);
       row.innerHTML = `
-        <div class="row-rank">${getRankLabel(rank)}</div>
         <div class="row-photo">
           <img src="${user.photo}" alt="${escapeHtml(user.name)}">
         </div>
