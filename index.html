@@ -18,7 +18,7 @@
       --dim:rgba(212,185,130,0.42);
       --border:rgba(201,148,58,0.3);
     }
-    html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--cream);font-family:'Cinzel',serif;cursor:none}
+    html,body{height:100%;width:100%;overflow:hidden;background:var(--bg);color:var(--cream);font-family:'Cinzel',serif}
     #cur{position:fixed;left:-20px;top:-20px;width:16px;height:16px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 18px var(--gold),0 0 40px rgba(201,148,58,.3)}
     #cv{position:fixed;inset:0;z-index:0}
 
@@ -169,24 +169,19 @@
 </div>
 
 <script>
-  // cursor
-  var cur=document.getElementById('cur');
-  var curX=-20,curY=-20;
-  function moveCur(e){
-    curX=e.clientX;curY=e.clientY;
-    cur.style.left=curX+'px';
-    cur.style.top=curY+'px';
-  }
+  /* ── Custom cursor (gold glow follows mouse) ── */
+  var curEl=document.getElementById('cur');
+  function moveCur(e){curEl.style.left=e.clientX+'px';curEl.style.top=e.clientY+'px';}
   document.addEventListener('mousemove',moveCur);
   document.addEventListener('mouseenter',moveCur);
 
-  // canvas
+  /* ── Canvas wave animation ── */
   var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
-  function rsz(){cv.width=window.innerWidth;cv.height=window.innerHeight}
+  function rsz(){cv.width=innerWidth;cv.height=innerHeight;}
   rsz();
   window.addEventListener('resize',rsz);
 
-  var t=0;
+  var tick=0;
   var wv=[
     {r:.50,a:34,f:.012,s:.018,op:.09},
     {r:.43,a:18,f:.018,s:.024,op:.06},
@@ -194,7 +189,6 @@
     {r:.33,a:11,f:.022,s:.030,op:.035},
     {r:.67,a:13,f:.010,s:.014,op:.035}
   ];
-
   function draw(){
     ctx.clearRect(0,0,cv.width,cv.height);
     var g=ctx.createRadialGradient(cv.width/2,cv.height*.45,0,cv.width/2,cv.height*.45,cv.width*.65);
@@ -202,47 +196,108 @@
     g.addColorStop(1,'rgba(0,0,0,0)');
     ctx.fillStyle=g;
     ctx.fillRect(0,0,cv.width,cv.height);
-
     wv.forEach(function(w){
       ctx.beginPath();
       ctx.strokeStyle='rgba(201,148,58,'+w.op+')';
       ctx.lineWidth=1.2;
       var by=cv.height*w.r;
       for(var x=0;x<=cv.width;x+=3){
-        var y=by
-          +Math.sin(x*w.f+t*w.s)*w.a
-          +Math.sin(x*w.f*2.4-t*w.s*1.7)*(w.a*.25);
+        var y=by+Math.sin(x*w.f+tick*w.s)*w.a+Math.sin(x*w.f*2.4-tick*w.s*1.7)*(w.a*.25);
         x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
       }
       ctx.stroke();
     });
-    t++;
+    tick++;
     requestAnimationFrame(draw);
   }
   draw();
 
-  // scene engine
-  var scenes=[0,1,2,3].map(function(i){return document.getElementById('s'+i)});
-  var dots  =[0,1,2,3].map(function(i){return document.getElementById('d'+i)});
-  var times =[3200,4000,4400,999999];
-  var cur_s=0,timer=null;
+  /* ── Audio engine ── */
+  var ac=null;
+  function ensureAudio(){
+    if(ac)return;
+    try{ac=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}
+  }
+  function sfxTransition(){
+    if(!ac)return;
+    try{
+      var now=ac.currentTime;
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);
+      o.type='sine';
+      o.frequency.setValueAtTime(40,now);
+      o.frequency.exponentialRampToValueAtTime(130,now+.25);
+      o.frequency.exponentialRampToValueAtTime(28,now+.7);
+      g.gain.setValueAtTime(.07,now);
+      g.gain.exponentialRampToValueAtTime(.0001,now+.7);
+      o.start();o.stop(now+.7);
+    }catch(e){}
+  }
+  function sfxClick(){
+    if(!ac)return;
+    try{
+      var now=ac.currentTime;
+      var o=ac.createOscillator(),g=ac.createGain();
+      o.connect(g);g.connect(ac.destination);
+      o.type='triangle';
+      o.frequency.setValueAtTime(600,now);
+      o.frequency.exponentialRampToValueAtTime(900,now+.08);
+      g.gain.setValueAtTime(.045,now);
+      g.gain.exponentialRampToValueAtTime(.0001,now+.12);
+      o.start();o.stop(now+.12);
+    }catch(e){}
+  }
+  function sfxEnter(){
+    if(!ac)return;
+    try{
+      var now=ac.currentTime;
+      var o1=ac.createOscillator(),g1=ac.createGain();
+      o1.connect(g1);g1.connect(ac.destination);
+      o1.type='sine';
+      o1.frequency.setValueAtTime(180,now);
+      o1.frequency.exponentialRampToValueAtTime(520,now+.35);
+      o1.frequency.exponentialRampToValueAtTime(80,now+.85);
+      g1.gain.setValueAtTime(.06,now);
+      g1.gain.exponentialRampToValueAtTime(.0001,now+.9);
+      o1.start();o1.stop(now+.9);
+      var o2=ac.createOscillator(),g2=ac.createGain();
+      o2.connect(g2);g2.connect(ac.destination);
+      o2.type='sine';
+      o2.frequency.setValueAtTime(270,now+.05);
+      o2.frequency.exponentialRampToValueAtTime(780,now+.4);
+      o2.frequency.exponentialRampToValueAtTime(120,now+.9);
+      g2.gain.setValueAtTime(.03,now+.05);
+      g2.gain.exponentialRampToValueAtTime(.0001,now+.9);
+      o2.start(now+.05);o2.stop(now+.9);
+    }catch(e){}
+  }
+  /* init audio on first user interaction */
+  document.addEventListener('click',function(){ensureAudio();},{once:true});
+  document.addEventListener('touchstart',function(){ensureAudio();},{once:true});
+
+  /* ── Scene engine ── */
+  var scenes=[0,1,2,3].map(function(i){return document.getElementById('s'+i);});
+  var dots=[0,1,2,3].map(function(i){return document.getElementById('d'+i);});
+  var durations=[3200,4000,4400,999999]; /* ms per scene */
+  var cur_s=0,autoTimer=null;
+  var ov=document.getElementById('ov');
 
   function flash(){
-    var ov=document.getElementById('ov');
     ov.style.opacity='.4';
     setTimeout(function(){ov.style.opacity='0';},150);
   }
 
   function updateNav(){
-    document.getElementById('prevBtn').disabled = (cur_s === 0);
+    document.getElementById('prevBtn').disabled=(cur_s===0);
   }
 
   function show(n){
     scenes[cur_s].classList.remove('on');
     dots[cur_s].classList.remove('on');
     flash();
+    sfxTransition();
     cur_s=n;
-    // force reflow so CSS animations replay when revisiting a scene
+    /* force reflow so CSS animations replay on revisited scenes */
     void scenes[cur_s].offsetWidth;
     scenes[cur_s].classList.add('on');
     dots[cur_s].classList.add('on');
@@ -250,67 +305,61 @@
     if(n===0){
       var r=document.getElementById('rl');
       r.style.width='0';
-      setTimeout(function(){r.style.width='280px'},80);
+      setTimeout(function(){r.style.width='280px';},80);
     }
   }
 
-  function adv(){
+  function advance(){
     if(cur_s<scenes.length-1){
       show(cur_s+1);
-      clearTimeout(timer);
+      clearTimeout(autoTimer);
       if(cur_s<scenes.length-1){
-        timer=setTimeout(adv,times[cur_s]);
+        autoTimer=setTimeout(advance,durations[cur_s]);
       }
     }
   }
 
-  function prev(){
+  function goBack(){
     if(cur_s>0){
-      clearTimeout(timer);
+      clearTimeout(autoTimer);
       show(cur_s-1);
-      timer=setTimeout(adv,times[cur_s]);
+      autoTimer=setTimeout(advance,durations[cur_s]);
     }
   }
 
-  timer=setTimeout(adv,times[0]);
+  /* start auto-advance: scene 1 after 3.2s */
+  autoTimer=setTimeout(advance,durations[0]);
 
-  document.getElementById('prevBtn').addEventListener('click',function(e){e.stopPropagation();prev();});
+  /* ── Navigation buttons ── */
+  document.getElementById('prevBtn').addEventListener('click',function(e){
+    e.stopPropagation();
+    ensureAudio();sfxClick();
+    goBack();
+  });
+
   document.getElementById('nextBtn').addEventListener('click',function(e){
     e.stopPropagation();
-    if(cur_s<scenes.length-1){clearTimeout(timer);adv();}
+    ensureAudio();sfxClick();
+    if(cur_s<scenes.length-1){clearTimeout(autoTimer);advance();}
     else{goReg();}
   });
 
+  /* click anywhere on wrap to advance */
   document.getElementById('wrap').addEventListener('click',function(e){
     if(e.target.tagName==='BUTTON')return;
-    if(cur_s<scenes.length-1){clearTimeout(timer);adv();}
+    ensureAudio();
+    if(cur_s<scenes.length-1){clearTimeout(autoTimer);advance();}
   });
 
+  /* ── Go to register ── */
   function goReg(){
-    var ov=document.getElementById('ov');
+    sfxEnter();
     ov.style.opacity='1';
     setTimeout(function(){window.location.href='register.html';},580);
   }
 
-  document.getElementById('enterBtn').addEventListener('click',goReg);
-  document.getElementById('skipBtn').addEventListener('click',goReg);
-
-  // subtle rumble on first click
-  var snd=false;
-  document.addEventListener('click',function(){
-    if(snd)return;snd=true;
-    try{
-      var ac=new(window.AudioContext||window.webkitAudioContext)();
-      var o=ac.createOscillator(),gn=ac.createGain();
-      o.connect(gn);gn.connect(ac.destination);
-      o.type='sine';
-      o.frequency.setValueAtTime(36,ac.currentTime);
-      o.frequency.exponentialRampToValueAtTime(85,ac.currentTime+.6);
-      gn.gain.setValueAtTime(.06,ac.currentTime);
-      gn.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.9);
-      o.start();o.stop(ac.currentTime+.9);
-    }catch(e){}
-  },{once:true});
+  document.getElementById('enterBtn').addEventListener('click',function(){ensureAudio();goReg();});
+  document.getElementById('skipBtn').addEventListener('click',function(){ensureAudio();goReg();});
 </script>
 
 </body>
