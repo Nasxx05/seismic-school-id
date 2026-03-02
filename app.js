@@ -299,8 +299,7 @@
         showError(nameInput, 'Name must be 100 characters or less');
       }
 
-      const magVal = magSelect.value;
-      const mag = magVal === 'admin' ? 'admin' : parseInt(magVal);
+      const mag = magSelect.value;
       if (!mag) {
         showError(magSelect, 'Please select a magnitude level');
       }
